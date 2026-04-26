@@ -2,16 +2,35 @@
 <html>
 <body>
 <h2>اضغط لمشاركة الشاشة</h2>
-<button onclick="start()">مشاركة</button>
+<button id="shareBtn">مشاركة</button>
 
-<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+<p id="status"></p>
+
 <script>
-const peer = new Peer("child");
+document.getElementById("shareBtn").onclick = async function () {
+    try {
+        const stream = await navigator.mediaDevices.getDisplayMedia({
+            video: true,
+            audio: false
+        });
 
-async function start() {
-  const stream = await navigator.mediaDevices.getDisplayMedia({video:true});
-  const call = peer.call("viewer", stream);
-}
+        document.getElementById("status").innerText = "تم بدء مشاركة الشاشة ✔";
+
+        const video = document.createElement("video");
+        video.srcObject = stream;
+        video.autoplay = true;
+        video.style.width = "100%";
+        document.body.appendChild(video);
+
+        stream.getVideoTracks()[0].onended = () => {
+            document.getElementById("status").innerText = "تم إيقاف مشاركة الشاشة ✖";
+        };
+
+    } catch (err) {
+        document.getElementById("status").innerText =
+            "حدث خطأ: " + err.message;
+    }
+};
 </script>
 </body>
 </html>
